@@ -4,6 +4,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+        default: 'c120176'
 
 permissions:
   contents: read
@@ -12,7 +18,7 @@ permissions:
 jobs:
   run-ai-agents:
     runs-on: ubuntu-latest
-    
+
     env:
       GROQ_API_ENDPOINT: ${{ secrets.GROQ_API_ENDPOINT }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -45,11 +51,12 @@ jobs:
         python -c "
         from agents.build_predictor_agent import BuildPredictorAgent, BuildPredictorConfig
         import os
-        
+
+        pr_number = '${{ github.event.inputs.pr_number || github.event.pull_request.number }}'
         agent = BuildPredictorAgent(BuildPredictorConfig(
             groq_api_key=os.environ['GROQ_API_KEY']
         ))
-        result = agent.predict_build_failure({'pr_number': '${{ github.event.pull_request.number }}'})
+        result = agent.predict_build_failure({'pr_number': pr_number})
         print(result)
         "
 
@@ -58,13 +65,18 @@ jobs:
         python -c "
         from agents.code_review_agent import CodeReviewAgent, CodeReviewConfig
         import os
-        
+
+        pr_number = '${{ github.event.inputs.pr_number || github.event.pull_request.number }}'
+        # Remove 'c' prefix if present
+        if pr_number.startswith('c'):
+            pr_number = pr_number[1:]
+
         agent = CodeReviewAgent(CodeReviewConfig(
             groq_api_endpoint=os.environ['GROQ_API_ENDPOINT'],
             groq_api_key=os.environ['GROQ_API_KEY'],
             github_token=os.environ['GITHUB_TOKEN'],
             repo_name='${{ github.repository }}',
-            pull_request_number=${{ github.event.pull_request.number }}
+            pull_request_number=int(pr_number)
         ))
         agent.run()
         "
@@ -74,14 +86,19 @@ jobs:
         python -c "
         from agents.chat_agent import ChatAgent, ChatAgentConfig
         import os
-        
+
+        pr_number = '${{ github.event.inputs.pr_number || github.event.pull_request.number }}'
+        # Remove 'c' prefix if present
+        if pr_number.startswith('c'):
+            pr_number = pr_number[1:]
+
         agent = ChatAgent(ChatAgentConfig(
             chat_model_id='llama3-8b-8192',
             groq_api_endpoint=os.environ['GROQ_API_ENDPOINT'],
             groq_api_key=os.environ['GROQ_API_KEY'],
             github_token=os.environ['GITHUB_TOKEN'],
             repo_name='${{ github.repository }}',
-            pull_request_number=${{ github.event.pull_request.number }}
+            pull_request_number=int(pr_number)
         ))
         agent.run()
-        " 
+        "
