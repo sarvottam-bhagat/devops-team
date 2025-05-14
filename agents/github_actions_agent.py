@@ -5,7 +5,7 @@ from utils.groq_client import GROQClient
 class GitHubActionsConfig(BaseModel):
     """
     Configuration settings for the GitHub Actions workflow generator.
-    
+
     Attributes:
         workflow_name (str): Name of the GitHub Actions workflow
         python_version (str): Python version to use in the pipeline
@@ -22,7 +22,7 @@ class GitHubActionsConfig(BaseModel):
 class GitHubActionsAgent(Agent):
     """
     An AI agent that generates and manages GitHub Actions workflows.
-    
+
     This agent can fetch configuration from GROQ's API and generate
     appropriate GitHub Actions workflow files with CI/CD pipeline definitions.
     """
@@ -30,7 +30,7 @@ class GitHubActionsAgent(Agent):
     def __init__(self, config: GitHubActionsConfig):
         """
         Initialize the GitHub Actions agent with necessary configuration.
-        
+
         Args:
             config (GitHubActionsConfig): Configuration object containing workflow settings
         """
@@ -44,7 +44,7 @@ class GitHubActionsAgent(Agent):
     def fetch_config(self):
         """
         Fetch workflow configuration from GROQ API.
-        
+
         Queries the GROQ API for GitHub Actions configuration settings and updates
         the agent's configuration accordingly. Falls back to default values
         if the API request fails.
@@ -67,13 +67,13 @@ class GitHubActionsAgent(Agent):
     def generate_pipeline(self) -> str:
         """
         Generate GitHub Actions workflow YAML content.
-        
+
         Creates a complete CI/CD pipeline definition including:
         - Python setup and dependency installation
         - Docker configuration and container testing
         - Environment variable handling
         - Caching for improved performance
-        
+
         Returns:
             str: Complete GitHub Actions workflow YAML content
         """
@@ -93,7 +93,7 @@ permissions:
 jobs:
   run-devops-ai:
     runs-on: ubuntu-latest
-    
+
     env:
       GROQ_API_ENDPOINT: ${{{{ secrets.GROQ_API_ENDPOINT }}}}  # API endpoint for GROQ
       GROQ_API_KEY: ${{{{ secrets.GROQ_API_KEY }}}}           # Authentication key
@@ -130,33 +130,44 @@ jobs:
 
     - name: Start Docker Container
       run: |
-        docker run -d -p 80:80 myapp:latest
+        # Stop any existing containers on port 8080
+        docker ps -q --filter publish=8080 | xargs -r docker stop
+
+        # Start the container on port 8080
+        docker run -d -p 8080:80 myapp:latest
         sleep 5  # Give nginx a moment to start
 
     - name: Test Docker Container
       run: |
         if docker ps | grep -q myapp; then
           echo "🔍 Testing Docker container endpoints..."
-          
-          if curl -I http://localhost/talkitdoit.html | grep -q "200 OK"; then
+
+          if curl -I http://localhost:8080/talkitdoit.html | grep -q "200 OK"; then
             echo "✅ talkitdoit.html test passed! 🚀"
           else
             echo "❌ talkitdoit.html test failed 😢"
             exit 1
           fi
-          
-          if curl -I http://localhost/index.html | grep -q "200 OK"; then
+
+          if curl -I http://localhost:8080/index.html | grep -q "200 OK"; then
             echo "✅ index.html test passed! 🎯"
           else
             echo "❌ index.html test failed 😢"
             exit 1
           fi
-          
+
+          if curl -I http://localhost:8080/new.html | grep -q "200 OK"; then
+            echo "✅ new.html test passed! 🎯"
+          else
+            echo "❌ new.html test failed 😢"
+            exit 1
+          fi
+
           echo "🎉 All Docker container tests passed successfully! 🌟"
         else
           echo "⚠️ Docker container not running, skipping tests 🤔"
           exit 1
         fi
         """
-        
+
         return pipeline

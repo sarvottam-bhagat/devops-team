@@ -77,15 +77,16 @@ jobs:
             exit 1
           fi
 
+          if curl -I http://localhost:8080/new.html | grep -q "200 OK"; then
+            echo "✅ new.html test passed! 🎯"
+          else
+            echo "❌ new.html test failed 😢"
+            exit 1
+          fi
+
           echo "🎉 All Docker container tests passed successfully! 🌟"
         else
           echo "⚠️ Docker container not running, skipping tests 🤔"
           exit 1
         fi
-
-    - name: Cleanup
-      if: always()
-      run: |
-        echo "🧹 Cleaning up resources..."
-        docker ps -q --filter ancestor=myapp:latest | xargs -r docker stop
-        echo "✅ Cleanup completed!"
+        
