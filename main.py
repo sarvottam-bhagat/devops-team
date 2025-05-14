@@ -11,7 +11,7 @@ load_dotenv()
 def main():
     """
     Main orchestration function that coordinates the DevOps AI team's activities.
-    
+
     This function manages four main tasks:
     1. Creating a GitHub Actions CI/CD pipeline
     2. Generating a Dockerfile
@@ -31,9 +31,9 @@ def main():
     )
     gha_agent = GitHubActionsAgent(config=gha_config)
     pipeline = gha_agent.generate_pipeline()
-    
+
     # Save the pipeline configuration to a YAML file
-    with open(".github/workflows/CI3.yml", "w") as f:
+    with open(".github/workflows/CI3.yml", "w", encoding="utf-8") as f:
         f.write(pipeline)
     print("✅ CI/CD Pipeline created!")
 
@@ -49,9 +49,9 @@ def main():
     )
     docker_agent = DockerfileAgent(config=docker_config)
     dockerfile = docker_agent.generate_dockerfile()
-    
+
     # Save the Dockerfile
-    with open("Dockerfile", "w") as f:
+    with open("Dockerfile", "w", encoding="utf-8") as f:
         f.write(dockerfile)
     print("✅ Dockerfile created!")
 
@@ -59,16 +59,16 @@ def main():
     print("\n3️⃣ Build Status Agent: Building and checking Docker image...")
     status_config = BuildStatusConfig(image_tag="myapp:latest")
     status_agent = BuildStatusAgent(config=status_config)
-    
+
     # Attempt to build the Docker image
     print("🔨 Building Docker image...")
     import subprocess
     build_result = subprocess.run(
-        ["docker", "build", "-t", "myapp:latest", "."], 
+        ["docker", "build", "-t", "myapp:latest", "."],
         capture_output=True,  # Capture command output
         text=True            # Return string instead of bytes
     )
-    
+
     # Verify the build status
     status = status_agent.check_build_status()
     print(f"📊 Build Status: {status}")
@@ -76,12 +76,12 @@ def main():
     # 4. Predict Build Success/Failure
     print("\n4️⃣ Build Predictor Agent: Analyzing build patterns...")
     predictor_config = BuildPredictorConfig(
-        model="llama3-8b-8192",  # Using Groq's recommended model
+        model="llama3-70b-8192",  # Using Groq's recommended model
         groq_api_endpoint=os.getenv("GROQ_API_ENDPOINT"),
         groq_api_key=os.getenv("GROQ_API_KEY")
     )
     predictor_agent = BuildPredictorAgent(config=predictor_config)
-    
+
     # Prepare build data for analysis
     build_data = {
         "dockerfile_exists": True,         # Dockerfile was created
@@ -90,7 +90,7 @@ def main():
         "python_version": "3.13.0",        # Python version being used
         "dependencies_updated": True       # Dependencies are current
     }
-    
+
     # Get build prediction
     prediction = predictor_agent.predict_build_failure(build_data)
     print(f"🔮 Build Prediction: {prediction}")
