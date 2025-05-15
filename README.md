@@ -1,10 +1,4 @@
-# TALKITDOIT - DevOps AI Agent Team 🤖
 
-Welcome to the talkitdoit project! This repository contains a team of AI agents that help automate and enhance your DevOps workflow. As featured on our [YouTube Channel](youtube.com/@talkitdoit), these agents work together to handle various DevOps tasks including code review, build prediction, and infrastructure management.
-
-[![YouTube Channel](https://img.shields.io/badge/YouTube-Subscribe-red)](https://www.youtube.com/@talkitdoit)
-[![GitHub Stars](https://img.shields.io/github/stars/talkitdoit/talkitdoit-ai?style=social)](https://github.com/talkitdoit/build-a-devops-team-using-ai-agents)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🌟 Features
 
